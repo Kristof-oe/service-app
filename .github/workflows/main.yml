@@ -61,3 +61,5 @@ jobs:
       run: |
         docker build -t ${{ vars.REPOSITORY_URL_A }}:${{ steps.version.outputs.version }} sa/
         docker build -t ${{ vars.REPOSITORY_URL_B }}:${{ steps.version.outputs.version }} sb/
+        docker push ${{ vars.REPOSITORY_URL_A }}:${{ steps.version.outputs.version }} 
+        docker push ${{ vars.REPOSITORY_URL_B }}:${{ steps.version.outputs.version }} 
