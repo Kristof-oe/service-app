@@ -1,0 +1,63 @@
+name: Add tag
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  Test:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup
+      uses: astral-sh/setup-uv@v4
+      with:
+        python-version: 3.13
+
+    
+    - name: Sync
+      run: |
+        uv sync
+
+
+    - name: Testing A
+      run: |
+        uv run python -m unittest discover -s sa -v
+
+    - name: Testing B
+      run: |
+        uv run python -m unittest discover -s sa -v
+
+  Build:
+    needs: Test
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write   # lets the job get an OIDC token
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Oidc
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        aws-region: ${{ vars.AWS_REGION }}
+
+
+    - name: Login ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v4
+
+    - name: Version
+      id: version
+      run: echo "version=$(uv version --short)" >> "$GITHUB_OUTPUT"
+
+    - name: Build docker A and B
+      run: |
+        docker build -t ${{ vars.REPOSITORY_URL_A }}:${{ steps.version.outputs.version }} sa/
+        docker build -t ${{ vars.REPOSITORY_URL_B }}:${{ steps.version.outputs.version }} sb/
