@@ -9,7 +9,7 @@ class AppTestCase(unittest.TestCase):
     def test_hello_world(self):
         response = self.client.get('/api/sa')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Hello, World!", response.data)
+        self.assertIn(b"Hello from Service A!", response.data)
 
 if __name__ == '__main__':
     unittest.main()
